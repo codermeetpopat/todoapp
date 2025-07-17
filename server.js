@@ -34,8 +34,8 @@ const connectDB = async () => {
 
 connectDB();
 
-// Root route for API status
-app.get('/', (req, res) => {
+// API status route for development
+app.get('/api/status', (req, res) => {
   res.json({
     message: 'Todo API is running successfully!',
     version: '1.0.0',
