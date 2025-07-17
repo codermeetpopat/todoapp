@@ -38,6 +38,32 @@ connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/todos', todoRoutes);
 
+// Root route for API status
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Todo API is running successfully!',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth (POST /login, POST /register)',
+      todos: '/api/todos (GET, POST, PUT, DELETE)'
+    },
+    status: 'healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// API route not found handler
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    error: 'API endpoint not found',
+    message: `The endpoint ${req.originalUrl} does not exist`,
+    availableEndpoints: {
+      auth: '/api/auth',
+      todos: '/api/todos'
+    }
+  });
+});
+
 // Serve static assets if in production
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
@@ -45,6 +71,15 @@ if (process.env.NODE_ENV === 'production') {
   
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+  });
+} else {
+  // For non-production, handle any other routes
+  app.get('*', (req, res) => {
+    res.status(404).json({
+      error: 'Route not found',
+      message: `The route ${req.originalUrl} does not exist`,
+      suggestion: 'Use /api/auth or /api/todos endpoints'
+    });
   });
 }
 
