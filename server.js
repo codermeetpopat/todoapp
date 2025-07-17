@@ -34,10 +34,6 @@ const connectDB = async () => {
 
 connectDB();
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/todos', todoRoutes);
-
 // Root route for API status
 app.get('/', (req, res) => {
   res.json({
@@ -52,7 +48,11 @@ app.get('/', (req, res) => {
   });
 });
 
-// API route not found handler
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/todos', todoRoutes);
+
+// API route not found handler (must be AFTER the actual routes)
 app.use('/api/*', (req, res) => {
   res.status(404).json({
     error: 'API endpoint not found',
