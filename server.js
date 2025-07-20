@@ -64,8 +64,13 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// Serve static assets if in production
-if (process.env.NODE_ENV === 'production') {
+// Serve static assets if in production OR if build folder exists
+const fs = require('fs');
+const buildPath = path.resolve(__dirname, 'client', 'build');
+const shouldServeStaticFiles = process.env.NODE_ENV === 'production' || fs.existsSync(buildPath);
+
+if (shouldServeStaticFiles) {
+  console.log('Serving static files from client/build');
   // Set static folder
   app.use(express.static('client/build'));
   
@@ -73,12 +78,15 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
   });
 } else {
+  console.log('Development mode - not serving static files');
   // For non-production, handle any other routes
   app.get('*', (req, res) => {
     res.status(404).json({
       error: 'Route not found',
       message: `The route ${req.originalUrl} does not exist`,
-      suggestion: 'Use /api/auth or /api/todos endpoints'
+      suggestion: 'Use /api/auth or /api/todos endpoints',
+      environment: process.env.NODE_ENV || 'development',
+      buildFolderExists: fs.existsSync(buildPath)
     });
   });
 }
